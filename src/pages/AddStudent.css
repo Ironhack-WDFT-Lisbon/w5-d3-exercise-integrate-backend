@@ -71,7 +71,6 @@ input[type="number"]::-webkit-inner-spin-button {
   opacity: 0.5;
   position: absolute;
   top: 0;
-
   right: 0;
   bottom: 0;
 }

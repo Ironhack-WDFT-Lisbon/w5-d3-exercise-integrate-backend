@@ -1,36 +1,56 @@
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import studentsData from "./studentsData";
 import "./App.css";
+import studentsData from "./studentsData";
+
+// Components
 import Navbar from "./components/Navbar";
 
 // Pages
-import Homepage from "./Homepage";
-import Listing from "./Listing";
-import SingleStudent from "./SingleStudent";
-import AddStudent from "./AddStudent";
-import UpdateStudent from "./UpdateStudent";
-import Error from "./Error";
+import Homepage from "./pages/Homepage";
+import Students from "./pages/Students";
+import AddStudent from "./pages/AddStudent";
+import UpdateStudent from "./pages/UpdateStudent";
+import SingleStudent from "./pages/SingleStudent";
+import Error from "./pages/Error";
 
 function App() {
-  const [students, setStudents] = useState(studentsData);
+  const [items, setItems] = useState(studentsData);
 
-  const createStudent = (student) => {
-    setStudents([...students, student]);
+  const createStudent = (newStudent) => {
+    const updatedStudents = [...items, newStudent];
+
+    const sortedStudents = updatedStudents.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    setItems(sortedStudents);
+  };
+
+  const updateStudent = (updatedStudent) => {
+    const updatedStudents = items.map((student) =>
+      student.id === updatedStudent.id ? updatedStudent : student
+    );
+
+    const sortedStudents = updatedStudents.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    setItems(sortedStudents);
   };
 
   const deleteItem = (id) => {
-    setStudents(students.filter((student) => student.id !== id));
+    setItems(items.filter((item) => item.id !== id));
   };
 
   return (
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Homepage students={students} />} />
+        <Route path="/" element={<Homepage students={items} />} />
         <Route
           path="/students"
-          element={<Listing students={students} deleteItem={deleteItem} />}
+          element={<Students students={items} deleteItem={deleteItem} />}
         />
         <Route
           path="/students/new"
@@ -38,12 +58,12 @@ function App() {
         />
         <Route
           path="/students/:studentId"
-          element={<SingleStudent students={students} />}
+          element={<SingleStudent students={items} />}
         />
         <Route
           path="/students/:studentId/edit"
           element={
-            <UpdateStudent students={students} setStudents={setStudents} />
+            <UpdateStudent students={items} updateStudent={updateStudent} />
           }
         />
         <Route path="*" element={<Error />} />

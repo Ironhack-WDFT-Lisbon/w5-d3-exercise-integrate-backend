@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 const imgURL =
   "https://www.dpmarketingcommunications.com/wp-content/uploads/2016/11/404-Page-Featured-Image.png";
 
-export default function ErrorPage() {
+export default function Error() {
   const navigate = useNavigate();
 
   const handleNavigate = () => {
@@ -17,8 +17,8 @@ export default function ErrorPage() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: "50px",
         minHeight: "90vh",
+        gap: "50px",
       }}
     >
       <img

@@ -13,15 +13,15 @@ export default function Navbar() {
         </NavLink>
         <NavLink
           to="/students"
-          end
           className={({ isActive }) => (isActive ? "active" : "")}
+          end
         >
           Students
         </NavLink>
         <NavLink
           to="/students/new"
           className={`highlight ${({ isActive }) =>
-            isActive ? " active" : ""}`}
+            isActive ? "active" : ""}`}
         >
           Add Student
         </NavLink>

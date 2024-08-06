@@ -5,35 +5,34 @@ export default function SingleStudent({ students }) {
   const { studentId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // find student using .find()
-  const student = students.find((student) => student.id === studentId);
+  // Filter the correct student using the studentId
+  const foundStudent = students.filter(
+    (student) => student.id === studentId
+  )[0];
 
-  // find student using .filter()
-  // const student = students.filter((student) => student.id === studentId)[0];
-
-  if (!student) {
-    return <Navigate to="/students" />;
+  // return the user to "somewhere" if the student is not found
+  if (!foundStudent) {
+    return <Navigate to="/not-found" />;
   }
 
+  // show/hide information with query params
   const showAge = searchParams.get("showAge");
   const showBootcamp = searchParams.get("showBootcamp");
-
-  // console.log("showAge", showAge);
-  // console.log("showBootcamp", showBootcamp);
 
   return (
     <div className="profile-wrapper">
       <div className="profile card">
         <img
-          src={student.img}
-          alt={`${student.name} profile picture`}
+          src={foundStudent.img}
+          alt={`${foundStudent.name} profile picture`}
           width={300}
           height="auto"
           style={{ borderRadius: "50%" }}
         />
-        <h2>{student.name}</h2>
-        <p>{student.age} anos</p>
-        <p>{student.bootcamp}</p>
+        <h2>{foundStudent.name}</h2>
+
+        {showAge !== "hide" && <p>Age: {foundStudent.age}</p>}
+        {showBootcamp !== "hide" && <p>Bootcamp: {foundStudent.bootcamp}</p>}
       </div>
     </div>
   );

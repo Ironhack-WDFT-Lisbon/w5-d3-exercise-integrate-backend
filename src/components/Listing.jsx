@@ -1,8 +1,8 @@
 import { useState } from "react";
-import "./StudentsList.css";
-import StudentCard from "./StudentCard";
+import "./Listing.css";
+import Card from "./Card";
 
-export default function StudentsList({ students, deleteItem }) {
+export default function Listing({ data, deleteItem }) {
   const [category, setCategory] = useState("");
 
   const handleCategoryFilter = (e) => {
@@ -23,15 +23,9 @@ export default function StudentsList({ students, deleteItem }) {
         </div>
       </div>
       <ul>
-        {students.map((student) => {
-          if (category === "" || student.bootcamp === category) {
-            return (
-              <StudentCard
-                key={student.id}
-                student={student}
-                deleteItem={deleteItem}
-              />
-            );
+        {data.map((item) => {
+          if (category === "" || item.bootcamp === category) {
+            return <Card key={item.id} item={item} deleteFunc={deleteItem} />;
           }
         })}
       </ul>

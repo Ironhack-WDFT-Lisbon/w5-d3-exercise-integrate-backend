@@ -3,15 +3,15 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import "./AddStudent.css";
 
-const defaultImg =
+const DEFAULT_PROFILE_PICTURE =
   "https://i.pinimg.com/736x/00/70/16/00701602b0eac0390b3107b9e2a665e0.jpg";
 
 export default function AddStudent({ createStudent }) {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [imgURL, setImgURL] = useState("");
-  const [age, setAge] = useState(0);
+  const [age, setAge] = useState("");
   const [bootcamp, setBootcamp] = useState("");
-  const navigate = useNavigate();
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -40,17 +40,28 @@ export default function AddStudent({ createStudent }) {
       return;
     }
 
-    // generate id, if no image default image is used & add student to the list
+    // Generate a unique ID
     const id = uuidv4();
-    const img = imgURL || defaultImg;
-    createStudent({ id, name, img, age, bootcamp });
+    const img = imgURL || DEFAULT_PROFILE_PICTURE;
+
+    // Create a new student object
+    const newStudent = {
+      id,
+      name,
+      img,
+      age,
+      bootcamp,
+    };
+
+    // Add student to the list
+    createStudent(newStudent);
 
     // clear form
     setName("");
     setAge(0);
     setBootcamp("");
 
-    // redirect to students list
+    // redirect to the students page
     navigate("/students");
   };
 
