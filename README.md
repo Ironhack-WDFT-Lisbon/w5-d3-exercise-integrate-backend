@@ -12,7 +12,7 @@
 
 ### v1 - Start Code
 
-- Removed the query string params
+- Removed the query string params from component Card.jsx
 
 ### v2 - Read Students from API / DB
 
@@ -30,11 +30,10 @@
 
    ```
     import axios from "axios";
-    import { API_URL } from "../index";
 
     export const getAllStudents = async () => {
       try {
-        const res = await axios.get(`${API_URL}/students`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/students`);
         return res.data;
       } catch (err) {
         return {
@@ -50,7 +49,7 @@
    1. Import the getAllStudents function from lib:
 
    ```
-    import { getAllStudents } from "../../lib/v2";
+    import { getAllStudents } from "../../lib";
    ```
 
    2. Import useEffect
@@ -74,17 +73,20 @@
 
 1. lib/students/index.js:
    ```
-   export const createStudent = async (student) => {
-     try {
-       const res = await axios.post(`${API_URL}/students`, student);
-       return res.data;
-     } catch (err) {
-       return {
-         status: err.response.status,
-         message: err.message,
-       };
-     }
-   };
+    export const createStudent = async (student) => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_URL}/students`,
+          student
+        );
+        return res.data;
+      } catch (err) {
+        return {
+          status: err.response.status,
+          message: err.message,
+        };
+      }
+    };
    ```
 2. In lib/index.js add the createStudent function to the export
 3. App.jsx:
@@ -93,7 +95,7 @@
    ```
       const addStudent = (student) => {
         createStudent(student).then((studentData) => {
-          setStudents([...students, studentData]);
+          setItems([...items, studentData]);
         });
       };
    ```
@@ -110,7 +112,9 @@
    ```
     export const deleteStudent = async (id) => {
       try {
-        const res = await axios.delete(`${API_URL}/students/${id}`);
+        const res = await axios.delete(
+          `${import.meta.env.VITE_API_URL}/students/${id}`
+        );
         return res.data;
       } catch (err) {
         return {
@@ -127,7 +131,7 @@
    ```
       const deleteItem = (id) => {
         deleteStudent(id).then((data) => {
-          setStudents(students.filter((student) => student._id !== data._id));
+          setItems(items.filter((item) => item._id !== id));
         });
       };
    ```
@@ -136,17 +140,21 @@
 
 1. lib/students/index.js:
    ```
-   export const updateStudent = async (student) => {
-    try {
-      const res = await axios.put(`${API_URL}/students/${student._id}`, student);
-      return res.data;
-    } catch (err) {
-      return {
-        status: err.response.status,
-        message: err.message,
-      };
-    }
-   };
+    export const updateStudent = async (student) => {
+      try {
+        const res = await axios.put(
+          `${import.meta.env.VITE_API_URL}/students/${student._id}`,
+          student
+        );
+        return res.data;
+      } catch (err) {
+        console.log(err);
+        return {
+          status: err.response.status,
+          message: err.message,
+        };
+      }
+    };
    ```
 2. In lib/index.js add the updateStudent function to the export
 3. App.jsx:
@@ -165,12 +173,9 @@
    ```
    3. Adjust the props in the updateStudent route
 4. UpdateStudent.jsx:
-   1. Accept the editStudent prop
-   2. Refactor the handleSubmit function:
-      1. Remove both the const updateStudents and the setStudents (no longer a prop)
-      2. Add the following to replace the items removed in the previous line:
+   1. Refactor the updatedStudent object in the handleSubmit function:
       ```
-        editStudent({ _id: studentId, name, img: imgURL, age, bootcamp });
+        updatedStudent({ _id: studentId, ... });
       ```
 
 ### v6 - Get Specific Student by Id
@@ -197,57 +202,77 @@
    ```
      import { useEffect, useState } from "react";
      import { useParams, useNavigate, Navigate } from "react-router-dom";
-     import { getStudentById } from "../../lib/v6";
+     import { getStudentById } from "../../../lib";
 
      export default function UpdateStudent({ students, editStudent }) {
-       const { studentId } = useParams();
-       const [foundStudent, setFoundStudent] = useState([]);
-       const navigate = useNavigate();
+        const { studentId } = useParams();
+        const navigate = useNavigate();
+        const [name, setName] = useState(foundStudent.name);
+        const [imgURL, setImgURL] = useState(foundStudent.img);
+        const [age, setAge] = useState(foundStudent.age);
+        const [bootcamp, setBootcamp] = useState(foundStudent.bootcamp);
 
-       useEffect(() => {
-         let student = students.find((student) => student._id === studentId);
+        useEffect(() => {
+          let student = students.find((student) => student._id === studentId);
 
-         if (student) setFoundStudent(student);
-         else
-           getStudentById(studentId).then((student) => {
-             if (!student) return <Navigate to="/students" />;
-             setFoundStudent(student);
-           });
-       }, []);
+          if (student) {
+            setName(student.name);
+            setImgURL(student.img);
+            setAge(student.age);
+            setBootcamp(student.bootcamp);
+          } else
+            getStudentById(studentId).then((student) => {
+              if (!student) return <Navigate to="/students" />;
 
-       const handleNameChange = (e) => {
-         setFoundStudent({ ...foundStudent, name: e.target.value });
-       };
+              setName(student.name);
+              setImgURL(student.img);
+              setAge(student.age);
+              setBootcamp(student.bootcamp);
+            });
+        }, []);
 
-       const handleImgChange = (e) => {
-         setFoundStudent({ ...foundStudent, imgURL: e.target.value });
-       };
+        const handleNameChange = (e) => {
+          setName(e.target.value);
+        };
 
-       const handleAgeChange = (e) => {
-         const value = Number(e.target.value) || "";
-         if (value < 0) return;
-         setFoundStudent({ ...foundStudent, age: value });
-       };
+        const handleImgChange = (e) => {
+          setImgURL(e.target.value);
+        };
 
-       const handleBootcampChange = (e) => {
-         setFoundStudent({ ...foundStudent, bootcamp: e.target.value });
-       };
+        const handleAgeChange = (e) => {
+          const value = Number(e.target.value) || "";
+          if (value < 0) return;
+          setAge(value);
+        };
 
-       const handleSubmit = (e) => {
-         e.preventDefault();
+        const handleBootcampChange = (e) => {
+          setBootcamp(e.target.value);
+        };
 
-         // Check if all fields are filled
-         if (!foundStudent.name || !foundStudent.age || !foundStudent.bootcamp) {
-           alert("Please fill in all fields");
-           return;
-         }
+        const handleSubmit = (e) => {
+          e.preventDefault();
 
-         // update student in the list
-         editStudent(foundStudent);
+          // Check if all fields are filled
+          if (!name || !age || !bootcamp) {
+            alert("Please fill in all fields");
+            return;
+          }
 
-         // redirect to students list
-         navigate("/students");
-       };
+          // Create a new student object
+          const updatedStudent = {
+            _id: studentId,
+            name,
+            img: imgURL ? imgURL : DEFAULT_PROFILE_PICTURE,
+            age,
+            bootcamp,
+          };
+
+          // Update student
+          updateStudent(updatedStudent);
+
+          // redirect to students list
+          navigate("/students");
+        };
 
        return (
          <div>
@@ -312,23 +337,25 @@
    ```
     import "./SingleStudent.css";
     import { useEffect, useState } from "react";
-    import { useParams, Navigate } from "react-router-dom";
-    import { getStudentById } from "../../lib/v6";
+    import { useParams, navigate, useSearchParams } from "react-router-dom";
 
     export default function SingleStudent({ students }) {
       const { studentId } = useParams();
-      const [foundStudent, setFoundStudent] = useState([]);
+      const [searchParams, setSearchParams] = useSearchParams();
+      const navigate = useNavigate();
+      const [foundStudent, setFoundStudent] = useState(null);
 
       useEffect(() => {
+        if (students.length === 0) return;
+
         let student = students.find((student) => student._id === studentId);
 
-        if (student) setFoundStudent(student);
-        else
-          getStudentById(studentId).then((student) => {
-            if (!student) return <Navigate to="/students" />;
-            setFoundStudent(student);
-          });
-      }, []);
+        if (student) {
+          setFoundStudent(student);
+        } else {
+          return navigate("/not-found");
+        }
+      }, [students]);
 
       return (
         <div className="profile-wrapper">
